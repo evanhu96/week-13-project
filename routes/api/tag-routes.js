@@ -16,10 +16,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const TagData = await Tag.findByPk(req.params.id, {
-      // JOIN with travellers, using the Trip through table
-      include: [{ model: Traveller, through: Trip, as: 'Tag_travellers' }]
-    });
+    const TagData = await Tag.findByPk(req.params.id);
 
     if (!TagData) {
       res.status(404).json({ message: 'No Tag found with this id!' });
@@ -44,11 +41,28 @@ router.post('/', async (req, res) => {
 
 
 router.put('/:id', (req, res) => {
-  // update a category by its `id` value
+  // update a tag by its `id` value
+  Tag.update(
+    {
+      // All the fields you can update and the data attached to the request body.
+      id: req.params.id,
+      tag_name: req.body.tag_name
+    },
+    {
+      where: {
+        id: req.params.id,
+      },
+    }
+  )
+    .then((updatedBook) => {
+      // Sends the updated book as a json response
+      res.json(updatedBook);
+    })
+    .catch((err) => res.json(err));
 });
 
 router.delete('/:id', async (req, res) => {
-  // delete a category by its `id` value
+  // delete a tag by its `id` value
   
   try {
     const TagData = await Tag.destroy({
